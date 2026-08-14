@@ -72,7 +72,7 @@ app.listen(PORT,()=>{
     console.log("app is running on port"+ PORT)
 })
 const mongo_url = 'mongodb://localhost:27017/Alhudah'
-mongoose.connect(mongo_url)
+mongoose.connect(process.env.MONGO_URL)
 .then(()=>
 {
    console.log('Mongo Connected Successfully') 
