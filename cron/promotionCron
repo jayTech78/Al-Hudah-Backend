@@ -1,0 +1,43 @@
+const cron = require("node-cron");
+
+const classModel = require("../models/class.model");
+
+const promotionService = require("../services/promotionService");
+
+const { getAcademicPeriod } = require("../utils/academicUtils");
+
+cron.schedule("0 0 * * *", async () => {
+
+    try {
+
+        const { session, term } = await getAcademicPeriod();
+
+        if (term.termName !== "Third Term") {
+            return;
+        }
+
+        const classes = await classModel.find({});
+
+        for (const cls of classes) {
+
+            if (!cls.resultStatus.thirdTerm) {
+                continue;
+            }
+            const promoted = cls.promotionHistory.some(
+                history =>
+                    history.session === session.sessionName
+            );
+
+            if (promoted) {
+                continue;
+            }
+            await promotionService.promoteClass(
+                cls.className,
+                session.sessionName
+            );
+        }
+    }
+    catch (error) {
+        console.error(error);
+    }
+});

@@ -1,0 +1,17 @@
+const express = require ("express")
+const router = express.Router()
+const {addStudentToClass,getStudentsAndSubjectsByClassName, getAllClasses, getClasses,addClass,findClassById,updateClass,deleteClass,assignTeacherToClass, getStudentsByClassName,classInfo, removeStudentFromClass } = require("../controllers/class.controller")
+
+router.post("/addClass", addClass)
+router.post("/findClassById",findClassById)
+router.post("/updateClass",updateClass)
+router.post("/deleteClass/:classId",deleteClass)
+router.get('/getClasses',getClasses)
+router.post('/assignTeacherToClass',assignTeacherToClass)
+router.get('/getAllClasses',getAllClasses)
+router.post('/addStudentToClass',addStudentToClass)
+router.post('/removeStudentFromClass',removeStudentFromClass)
+router.post("/getStudentsByClassName/:className",getStudentsByClassName)
+router.post('/getStudentsAndSubjectsByClassName/:className',getStudentsAndSubjectsByClassName)
+router.post('/classInfo/:className',classInfo)
+module.exports = router 
