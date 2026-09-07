@@ -33,7 +33,6 @@ const generateId = async () => {
 
 const parentSignUp = async (req, res) => {
   try {
-    const parentId = generateId();
     // Expecting frontend to send studentIds as array along with parent data
     const {
       surName,
@@ -45,20 +44,21 @@ const parentSignUp = async (req, res) => {
       occupation,
       studentIds, // 🔑 New field (array)
     } = req.body;
-
+    
     const existingParent = await parentModel.findOne({ email });
     if (existingParent) {
       return res
-        .send({ status: false, message: "Email already registered" });
+      .send({ status: false, message: "Email already registered" });
     }
-
+    
     // Validate required fields
     if (!surName || !otherNames || !phoneNo || !email || !password) {
       return res
-        .status(400)
-        .json({ status: false, message: "Missing required fields" });
+      .status(400)
+      .json({ status: false, message: "Missing required fields" });
     }
-
+    
+    const parentId = generateId();
     // Build parent object
     const parentObj = {
       parentId,
