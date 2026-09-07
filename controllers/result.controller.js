@@ -23,8 +23,10 @@ const resultService = require("../services/resultService");
 const getStudentResult = async (req, res) => {
 
     try {
-        const { studentId } = req.params;
-        const result = await resultService.getStudentResult(studentId);
+        const { studentId, session,term } = req.body;
+        
+        // console.log(req)
+        const result = await resultService.getStudentResult(studentId, session, term);
 
         res.send({
             status: true,

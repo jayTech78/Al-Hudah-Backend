@@ -12,6 +12,7 @@ const feesModel = require('../models/fees.model')
 const bookModel = require('../models/book.model');
 const termModel = require('../models/term.model');
 const sessionModel = require('../models/session.model')
+const cashbookModel = require('../models/cashbook.model')
 
 // Helper function to generate random string
 const get_random_string = (length) => {
@@ -66,13 +67,22 @@ const addPayment = async (req, res) => {
       studentName,
       selectedItems,
     } = req.body;
-
+    console.log(req.body)
     if (!parentId || !Price || !selectedItems || selectedItems.length === 0) {
       return res.send({
         status: false,
         message: "Missing required fields",
       });
     }
+
+    const lastRecord = await cashbookModel
+      .findOne()
+      .sort({ createdAt: -1 });
+
+    const lastBalance = lastRecord ? Number(lastRecord.balance) : 0;
+
+    // Income increases the balance
+    const newBalance = lastBalance + Price;
 
     // Active session & term
     const sessionAndTerm = await termModel.findOne({ status: "Active" });
@@ -97,27 +107,56 @@ const addPayment = async (req, res) => {
         session: sessionAndTerm?.session,
       };
 
+      // Save cashbook transaction
+      const cashbookObj = {
+        date: new Date(),
+        description,
+        reference: bookingRef,
+        account: source,
+        type: "Income",
+        credit: amountNumber,
+        debit: 0,
+        balance: 0,
+        paymentMethod,
+        recordedBy
+      };
+
+      const cashbookForm = new cashbookModel(cashbookObj);
+      await cashbookForm.save();
+
+      // 6. Get ALL cashbook records in chronological order(relating to the establishment of dates of past events:)
+      const cashbooks = await cashbookModel
+        .find()
+        .sort({ date: 1, _id: 1 });
+
+      // 7. Recalculate all balances
+      let runningBalance = 0;
+
+      for (const record of cashbooks) {
+
+        // Opening balance before this transaction
+        record.openingBalance = runningBalance;
+
+        // Income adds money
+        if (record.type === "Income") {
+          runningBalance += Number(record.credit || 0);
+        }
+
+        // Expense removes money
+        else if (record.type === "Expense") {
+          runningBalance -= Number(record.debit || 0);
+        }
+
+        // Balance after this transaction
+        record.balance = runningBalance;
+
+        await record.save();
+      }
+
       const payment = new paymentModel(paymentObj);
       await payment.save();
     }
 
-    // Update finance balance using the TOTAL amount paid
-    let financeRecord = await financeModel.findOne();
-
-    if (!financeRecord) {
-      financeRecord = new financeModel({
-        currentBalance: 0,
-      });
-    }
-
-    financeRecord.currentBalance =
-      Number(financeRecord.currentBalance || 0) + Number(Price);
-
-    if (!financeRecord.financeId) {
-      financeRecord.financeId = Math.floor(Math.random() * 1000000);
-    }
-
-    await financeRecord.save();
 
     // Receipt for the whole transaction
     const receiptObj = {

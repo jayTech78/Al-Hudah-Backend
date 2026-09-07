@@ -42,11 +42,15 @@ const termRouter = require("./routes/term.route");
 const sessionRouter = require("./routes/session.route");
 const resultRouter = require("./routes/result.route");
 const disciplinaryRouter = require("./routes/disciplinary.routes")
+const incomeRouter = require("./routes/income.route")
+const expenseRouter = require("./routes/expense.route")
+const cashbookRouter = require("./routes/cashbook.route")
 require("./cron/promotionCron");
 
 // Routes
 app.use("/parent", parentRouter);
 app.use("/student", studentRouter);
+app.use("/disciplinary", disciplinaryRouter);
 app.use("/event", eventRouter);
 app.use("/staff", staffRouter);
 app.use("/manager", managerRouter);
@@ -65,13 +69,15 @@ app.use("/audit", auditRouter);
 app.use("/term", termRouter);
 app.use("/session", sessionRouter);
 app.use("/result", resultRouter);
-app.use("/disciplinary", disciplinaryRouter)
+app.use("/income", incomeRouter)
+app.use("/expense", expenseRouter)
+app.use("/cashbook", cashbookRouter)
 
 // MongoDB Connection
 app.listen(PORT,()=>{
     console.log("app is running on port"+ PORT)
 })
-const mongo_url = 'mongodb://localhost:27017/Alhudah'
+// const mongo_url = 'mongodb://localhost:27017/Alhudah'
 mongoose.connect(process.env.MONGO_URL)
 .then(()=>
 {
@@ -80,3 +86,17 @@ mongoose.connect(process.env.MONGO_URL)
 ((err)=>
 {
     console.log('There was a problem'+err)})
+
+// app.listen(PORT,()=>{
+//     console.log("app is running on port"+ PORT)
+// })
+const mongo_url = 'mongodb://localhost:27017/Alhudah'
+mongoose.connect(mongo_url)
+.then(()=>
+{
+   console.log('Mongo Connected Successfully') 
+}).catch
+((err)=>
+{
+    console.log('There was a problem'+err)})
+    

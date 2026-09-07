@@ -17,7 +17,7 @@ const markAttendance = async (req, res) => {
     const session = activeSession.sessionName;
 
     const bulkOps = attendanceData.map((data) => {
-      const { studentId, status, className, date } = data;
+      const { studentId, morningStatus,afternoonStatus, className, date } = data;
       const normalizedClassName = className.trim().toLowerCase();
       const normalizedDate = new Date(date).toISOString().split("T")[0]; // yyyy-mm-dd only
 
@@ -31,7 +31,7 @@ const markAttendance = async (req, res) => {
             term,
           },
           update: {
-            $set: { status },
+            $set: { morningStatus, afternoonStatus  },
           },
           upsert: true,
         },
@@ -59,7 +59,7 @@ const getAttendanceByDateAndClassName = async (req, res) => {
       date,
     })
     
-     console.log(attendance)
+    //  console.log(attendance)
     const gottenStudents= []
 
     for( attend of attendance )

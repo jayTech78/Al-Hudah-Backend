@@ -52,7 +52,7 @@ const getAcademicPeriod = async () => {
     const session = await getActiveSession();
 
     const term = await getActiveTerm();
-
+    console.log('Active term and session', session, term)
     return {
         session,
         term

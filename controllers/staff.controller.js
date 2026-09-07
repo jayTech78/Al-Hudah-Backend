@@ -377,6 +377,7 @@ const {classTaken, staffId, surName, otherNames}= req.body
   };
 
   const getDashboard = async (req, res) => {
+    // console.log("got here")
     let token = req.headers.authorization.split(" ")[1];
     let secret = process.env.SECRET;
     jwt.verify(token, secret, (err, result) => {

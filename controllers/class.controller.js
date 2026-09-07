@@ -278,7 +278,7 @@ const classInfo = async (req, res)=>
   const students = await studentModel.find({
     studentId: {$in: studentsIds},
   })
-  console.log("students",students)
+  // console.log("students",students)
   res.send({
     status:true,
     students,
