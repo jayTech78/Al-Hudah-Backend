@@ -33,7 +33,7 @@ const generateId = async () => {
 
 const parentSignUp = async (req, res) => {
   try {
-    const parentId = generateId;
+    const parentId = generateId();
     // Expecting frontend to send studentIds as array along with parent data
     const {
       surName,
