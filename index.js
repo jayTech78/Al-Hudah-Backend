@@ -90,13 +90,13 @@ mongoose.connect(process.env.MONGO_URL)
 // app.listen(PORT,()=>{
 //     console.log("app is running on port"+ PORT)
 // })
-const mongo_url = 'mongodb://localhost:27017/Alhudah'
-mongoose.connect(mongo_url)
-.then(()=>
-{
-   console.log('Mongo Connected Successfully') 
-}).catch
-((err)=>
-{
-    console.log('There was a problem'+err)})
+// const mongo_url = 'mongodb://localhost:27017/Alhudah'
+// mongoose.connect(mongo_url)
+// .then(()=>
+// {
+//    console.log('Mongo Connected Successfully') 
+// }).catch
+// ((err)=>
+// {
+//     console.log('There was a problem'+err)})
     
