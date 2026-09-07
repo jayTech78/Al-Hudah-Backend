@@ -28,12 +28,13 @@ const generateId = async () => {
 
   const nextNumber = highest + 1;
 
+  const id = String()
   return `${prefix}/${year}/${String(nextNumber).padStart(4, "0")}`;
 };
 
 const parentSignUp = async (req, res) => {
   try {
-    console.log('parentId',generateId())
+    console.log('This is the parentId:',generateId())
     // Expecting frontend to send studentIds as array along with parent data
     const {
       surName,
