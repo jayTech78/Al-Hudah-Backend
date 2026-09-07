@@ -74,29 +74,16 @@ app.use("/expense", expenseRouter)
 app.use("/cashbook", cashbookRouter)
 
 // MongoDB Connection
-app.listen(PORT,()=>{
-    console.log("app is running on port"+ PORT)
-})
-// const mongo_url = 'mongodb://localhost:27017/Alhudah'
-mongoose.connect(process.env.MONGO_URL)
-.then(()=>
-{
-   console.log('Mongo Connected Successfully') 
-}).catch
-((err)=>
-{
-    console.log('There was a problem'+err)})
+// MongoDB Connection
 
-// app.listen(PORT,()=>{
-//     console.log("app is running on port"+ PORT)
-// })
-// const mongo_url = 'mongodb://localhost:27017/Alhudah'
-// mongoose.connect(mongo_url)
-// .then(()=>
-// {
-//    console.log('Mongo Connected Successfully') 
-// }).catch
-// ((err)=>
-// {
-//     console.log('There was a problem'+err)})
-    
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("Mongo Connected Successfully");
+
+    app.listen(PORT, () => {
+      console.log(`App is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("There was a problem connecting to MongoDB:", err);
+  });
