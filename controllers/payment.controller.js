@@ -8,11 +8,11 @@ const path = require("path");
 const axios = require("axios"); // Import axios
 require("dotenv").config();
 const classModel = require("../models/class.model");
-const feesModel = require('../models/fees.model')
-const bookModel = require('../models/book.model');
-const termModel = require('../models/term.model');
-const sessionModel = require('../models/session.model')
-const cashbookModel = require('../models/cashbook.model')
+const feesModel = require("../models/fees.model");
+const bookModel = require("../models/book.model");
+const termModel = require("../models/term.model");
+const sessionModel = require("../models/session.model");
+const cashbookModel = require("../models/cashbook.model");
 
 // Helper function to generate random string
 const get_random_string = (length) => {
@@ -36,7 +36,7 @@ const verifyPayment = async (req, response) => {
         headers: {
           Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         },
-      }
+      },
     );
 
     if (res.status === 200 && res.data.data.status === "success") {
@@ -67,7 +67,7 @@ const addPayment = async (req, res) => {
       studentName,
       selectedItems,
     } = req.body;
-    console.log(req.body)
+    console.log(req.body);
     if (!parentId || !Price || !selectedItems || selectedItems.length === 0) {
       return res.send({
         status: false,
@@ -75,9 +75,7 @@ const addPayment = async (req, res) => {
       });
     }
 
-    const lastRecord = await cashbookModel
-      .findOne()
-      .sort({ createdAt: -1 });
+    const lastRecord = await cashbookModel.findOne().sort({ createdAt: -1 });
 
     const lastBalance = lastRecord ? Number(lastRecord.balance) : 0;
 
@@ -89,6 +87,13 @@ const addPayment = async (req, res) => {
 
     // One receipt reference for the whole transaction
     const bookingRef = get_random_string(6);
+
+    const lastRecord = await cashbookModel.findOne().sort({ createdAt: -1 });
+
+    const lastBalance = lastRecord ? Number(lastRecord.balance) : 0;
+
+    // Income increases the balance
+    const newBalance = lastBalance + Price;
 
     // Save every selected item as its own payment document
     for (const item of selectedItems) {
@@ -110,30 +115,27 @@ const addPayment = async (req, res) => {
       // Save cashbook transaction
       const cashbookObj = {
         date: new Date(),
-        description: item.name,
+        description: description || "item.name",
         reference: bookingRef,
-        account: source,
+        account: "payments",
         type: "Income",
         credit: amountNumber,
         debit: 0,
-        balance: 0,
+        balance: newBalance,
         paymentMethod,
-        recordedBy
+        recordedBy,
       };
 
       const cashbookForm = new cashbookModel(cashbookObj);
       await cashbookForm.save();
 
       // 6. Get ALL cashbook records in chronological order(relating to the establishment of dates of past events:)
-      const cashbooks = await cashbookModel
-        .find()
-        .sort({ date: 1, _id: 1 });
+      const cashbooks = await cashbookModel.find().sort({ date: 1, _id: 1 });
 
       // 7. Recalculate all balances
       let runningBalance = 0;
 
       for (const record of cashbooks) {
-
         // Opening balance before this transaction
         record.openingBalance = runningBalance;
 
@@ -156,7 +158,6 @@ const addPayment = async (req, res) => {
       const payment = new paymentModel(paymentObj);
       await payment.save();
     }
-
 
     // Receipt for the whole transaction
     const receiptObj = {
@@ -181,7 +182,6 @@ const addPayment = async (req, res) => {
       bookingRef,
       message: "Payment Successful! Receipt has been sent to your e-mail",
     });
-
   } catch (error) {
     console.error(error);
 
@@ -203,7 +203,7 @@ const generateReceipt = (paymentObj) => {
 
   const receiptPath = path.join(
     receiptDir,
-    `receipt_${paymentObj.paymentRef}.pdf`
+    `receipt_${paymentObj.paymentRef}.pdf`,
   );
 
   // Path to the school's logo image (customize this path)
@@ -374,32 +374,33 @@ const getPayments = async (req, res) => {
   try {
     const payments = await paymentModel.find();
     if (!payments.length) {
-      res.send({ status: false, message: 'No payments found' });
+      res.send({ status: false, message: "No payments found" });
     }
-    const studentIds = [...new Set(payments.map(p => p.studentId))]
-    const students = await studentModel.find({ studentId: { $in: studentIds } })
+    const studentIds = [...new Set(payments.map((p) => p.studentId))];
+    const students = await studentModel.find({
+      studentId: { $in: studentIds },
+    });
 
     const studentMap = {};
-    students.forEach(s => {
-      studentMap[s.studentId] = `${s.surName} ${s.otherNames}`
-    })
-    const studentIdMap = {}
-    studentIds.forEach(s => {
-      studentIdMap[s.studentId] = `${s.studentId}`
-    })
-    const formatted = payments.map(p => ({
-      fullName: studentMap[p.studentId] || 'Unknown Student',
+    students.forEach((s) => {
+      studentMap[s.studentId] = `${s.surName} ${s.otherNames}`;
+    });
+    const studentIdMap = {};
+    studentIds.forEach((s) => {
+      studentIdMap[s.studentId] = `${s.studentId}`;
+    });
+    const formatted = payments.map((p) => ({
+      fullName: studentMap[p.studentId] || "Unknown Student",
       studentIdMap: studentIdMap[p.studentId],
       paymentRef: p.paymentRef,
       amountPaid: p.amountPaid,
       datePaid: p.datePaid,
-      description: p.paidFor
-    }))
-    res.send({ status: true, payments: formatted })
-  }
-  catch (error) {
+      description: p.paidFor,
+    }));
+    res.send({ status: true, payments: formatted });
+  } catch (error) {
     console.error(error);
-    res.status(500).send({ status: false, message: 'Server Error:', error })
+    res.status(500).send({ status: false, message: "Server Error:", error });
   }
 };
 const getDebtorsByClass = async (req, res) => {
@@ -423,7 +424,6 @@ const getDebtorsByClass = async (req, res) => {
     let totalFees = 0;
 
     for (const feeName of foundClass.classFees) {
-
       const fee = await feesModel.findOne({
         fee: feeName,
       });
@@ -446,7 +446,6 @@ const getDebtorsByClass = async (req, res) => {
     let totalBooks = 0;
 
     for (const bookName of foundClass.classBooks) {
-
       const book = await bookModel.findOne({
         name: bookName,
       });
@@ -474,7 +473,6 @@ const getDebtorsByClass = async (req, res) => {
     //------------------------------------
 
     for (const studentId of foundClass.students) {
-
       const student = await studentModel.findOne({ studentId });
 
       if (!student) continue;
@@ -488,7 +486,7 @@ const getDebtorsByClass = async (req, res) => {
       //------------------------------------
 
       const validPayments = payments.filter(
-        p => p.paidFor !== "Admission Fee"
+        (p) => p.paidFor !== "Admission Fee",
       );
 
       // console.log(validPayments)
@@ -499,7 +497,7 @@ const getDebtorsByClass = async (req, res) => {
 
       const totalPaid = validPayments.reduce(
         (sum, payment) => sum + Number(payment.amountPaid),
-        0
+        0,
       );
 
       //------------------------------------
@@ -510,13 +508,9 @@ const getDebtorsByClass = async (req, res) => {
       let paidFeesTotal = 0;
 
       for (const payment of validPayments) {
-
-        const fee = feeDetails.find(
-          f => f.description === payment.paidFor
-        );
+        const fee = feeDetails.find((f) => f.description === payment.paidFor);
 
         if (fee) {
-
           paidFeeItems.push({
             description: payment.paidFor,
             amountPaid: Number(payment.amountPaid),
@@ -528,22 +522,14 @@ const getDebtorsByClass = async (req, res) => {
 
       // old system
       if (paidFeeItems.length === 0) {
-
         paidFeesTotal = validPayments
-          .filter(
-            p => p.paidFor === "Part Payment For Fees"
-          )
-          .reduce(
-            (sum, p) => sum + Number(p.amountPaid),
-            0
-          );
+          .filter((p) => p.paidFor === "Part Payment For Fees")
+          .reduce((sum, p) => sum + Number(p.amountPaid), 0);
       }
 
       const unpaidFees = feeDetails.filter(
-        fee =>
-          !paidFeeItems.some(
-            paid => paid.description === fee.description
-          )
+        (fee) =>
+          !paidFeeItems.some((paid) => paid.description === fee.description),
       );
 
       //------------------------------------
@@ -554,13 +540,9 @@ const getDebtorsByClass = async (req, res) => {
       let paidBooksTotal = 0;
 
       for (const payment of validPayments) {
-
-        const book = bookDetails.find(
-          b => b.bookName === payment.paidFor
-        );
+        const book = bookDetails.find((b) => b.bookName === payment.paidFor);
 
         if (book) {
-
           paidBookItems.push({
             bookName: payment.paidFor,
             amountPaid: Number(payment.amountPaid),
@@ -571,55 +553,35 @@ const getDebtorsByClass = async (req, res) => {
       }
 
       if (paidBookItems.length === 0) {
-
         paidBooksTotal = validPayments
-          .filter(
-            p => p.paidFor === "Part Payment For Books"
-          )
-          .reduce(
-            (sum, p) => sum + Number(p.amountPaid),
-            0
-          );
+          .filter((p) => p.paidFor === "Part Payment For Books")
+          .reduce((sum, p) => sum + Number(p.amountPaid), 0);
       }
 
       const unpaidBooks = bookDetails.filter(
-        book =>
-          !paidBookItems.some(
-            paid => paid.bookName === book.bookName
-          )
+        (book) =>
+          !paidBookItems.some((paid) => paid.bookName === book.bookName),
       );
 
       //------------------------------------
       // DEBTS
       //------------------------------------
 
-      const feeDebt = Math.max(
-        totalFees - paidFeesTotal,
-        0
-      );
+      const feeDebt = Math.max(totalFees - paidFeesTotal, 0);
 
-      const bookDebt = Math.max(
-        totalBooks - paidBooksTotal,
-        0
-      );
+      const bookDebt = Math.max(totalBooks - paidBooksTotal, 0);
 
-      const totalDebt = Math.max(
-        totalRequired - totalPaid,
-        0
-      );
+      const totalDebt = Math.max(totalRequired - totalPaid, 0);
 
       //------------------------------------
       // ONLY RETURN DEBTORS
       //------------------------------------
 
       if (totalDebt > 0) {
-
         debtors.push({
-
           studentId,
 
-          studentName:
-            `${student.surName} ${student.otherNames}`,
+          studentName: `${student.surName} ${student.otherNames}`,
 
           totalPaid,
 
@@ -640,7 +602,6 @@ const getDebtorsByClass = async (req, res) => {
             paidItems: paidBookItems,
             unpaidItems: unpaidBooks,
           },
-
         });
       }
     }
@@ -651,9 +612,7 @@ const getDebtorsByClass = async (req, res) => {
       totalDebtors: debtors.length,
       students: debtors,
     });
-
   } catch (err) {
-
     console.log(err);
 
     return res.send({
@@ -674,14 +633,20 @@ const getOutstandingPayment = async (req, res) => {
     for (const student of parentChildren) {
       const studentClass = await classModel
         .findById(student.classTo)
-        .populate('classFees')
-        .populate('classBooks');
+        .populate("classFees")
+        .populate("classBooks");
 
       if (!studentClass) continue;
 
       // Calculate total amount expected (sum of fees and books)
-      const totalFees = studentClass.fees.reduce((sum, fee) => sum + fee.amount, 0);
-      const totalBooks = studentClass.books.reduce((sum, book) => sum + book.amount, 0);
+      const totalFees = studentClass.fees.reduce(
+        (sum, fee) => sum + fee.amount,
+        0,
+      );
+      const totalBooks = studentClass.books.reduce(
+        (sum, book) => sum + book.amount,
+        0,
+      );
 
       const totalExpected = totalFees + totalBooks;
 
@@ -700,15 +665,14 @@ const getOutstandingPayment = async (req, res) => {
 };
 
 const getPaymentById = async (req, res) => {
-  const { paymentRef } = req.body
-  const payment = await paymentModel.findOne({ paymentRef })
+  const { paymentRef } = req.body;
+  const payment = await paymentModel.findOne({ paymentRef });
   if (payment) {
-    res.send({ status: true, payment })
+    res.send({ status: true, payment });
+  } else {
+    res.send({ status: false, message: "Not Found!!!" });
   }
-  else {
-    res.send({ status: false, message: 'Not Found!!!' })
-  }
-}
+};
 
 module.exports = {
   getPayments,
@@ -719,5 +683,5 @@ module.exports = {
   paymentHistory,
   getOutstandingPayment,
   getPaymentById,
-  getDebtorsByClass
+  getDebtorsByClass,
 };
