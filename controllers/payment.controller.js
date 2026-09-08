@@ -116,7 +116,7 @@ const addPayment = async (req, res) => {
         debit: 0,
         balance: newBalance,
         paymentMethod: 'Online',
-        recordedBy,
+        recordedBy: 'Parent',
       };
 
       const cashbookForm = new cashbookModel(cashbookObj);
