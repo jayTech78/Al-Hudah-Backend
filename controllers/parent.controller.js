@@ -13,12 +13,16 @@ const generateId = async () => {
   const year = new Date().getFullYear();
 
   const parents = await parentModel.find({
-    parentId: { $regex: `^${prefix}/${year}/` },
+    parentId: {
+      $regex: `^${prefix}/${year}/`,
+    },
   });
 
   let highest = 0;
 
   parents.forEach((parent) => {
+    if (!parent.parentId) return;
+
     const number = Number(parent.parentId.split("/")[2]);
 
     if (number > highest) {
@@ -28,14 +32,12 @@ const generateId = async () => {
 
   const nextNumber = highest + 1;
 
-  const id = String()
   return `${prefix}/${year}/${String(nextNumber).padStart(4, "0")}`;
 };
 
 const parentSignUp = async (req, res) => {
   try {
-    console.log('This is the parentId:',generateId())
-    // Expecting frontend to send studentIds as array along with parent data
+    // Get data from frontend
     const {
       surName,
       otherNames,
@@ -44,24 +46,33 @@ const parentSignUp = async (req, res) => {
       address,
       password,
       occupation,
-      studentIds, // 🔑 New field (array)
+      studentIds,
     } = req.body;
-    
-    const existingParent = await parentModel.findOne({ email });
-    if (existingParent) {
-      return res
-      .send({ status: false, message: "Email already registered" });
-    }
-    
+
     // Validate required fields
     if (!surName || !otherNames || !phoneNo || !email || !password) {
-      return res
-      .status(400)
-      .json({ status: false, message: "Missing required fields" });
+      return res.status(400).json({
+        status: false,
+        message: "Missing required fields",
+      });
     }
-    
-    const parentId = generateId();
-    // Build parent object
+
+    // Check if email already exists
+    const existingParent = await parentModel.findOne({ email });
+
+    if (existingParent) {
+      return res.status(400).json({
+        status: false,
+        message: "Email already registered",
+      });
+    }
+
+    // Generate parent ID
+    const parentId = await generateId();
+
+    console.log("This is the parentId:", parentId);
+
+    // Create parent object
     const parentObj = {
       parentId,
       surName,
@@ -71,30 +82,34 @@ const parentSignUp = async (req, res) => {
       address,
       password,
       occupation,
-      studentIds: Array.isArray(studentIds) ? studentIds : [], // Ensure it's always an array
+      studentIds: Array.isArray(studentIds) ? studentIds : [],
       isEntranceExamDateSent: false,
       isAdmissionletterSent: false,
     };
 
+    // Save parent
     const newParent = new parentModel(parentObj);
+
     await newParent.save();
 
-    // console.log("Parent registered:", parentObj);
+    console.log("Parent registered:", parentId);
 
-    res
-      .status(201)
-      .json({
-        status: true,
-        message: "Registered Successfully",
-        parent: parentObj,
-      });
+    return res.status(201).json({
+      status: true,
+      message: "Registered Successfully",
+      parent: parentObj,
+    });
+
   } catch (error) {
     console.error("Error registering parent:", error);
-    res
-      .status(500)
-      .json({ status: false, message: "There was an error: " + error.message });
+
+    return res.status(500).json({
+      status: false,
+      message: "There was an error: " + error.message,
+    });
   }
 };
+
 const login = (req, res) => {
   let { email, password } = req.body;
   parentModel.findOne({ email }).then((user) => {
