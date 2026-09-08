@@ -112,7 +112,7 @@ const addPayment = async (req, res) => {
         reference: bookingRef,
         account: "payments",
         type: "Income",
-        credit: amountNumber,
+        credit: item.price,
         debit: 0,
         balance: newBalance,
         paymentMethod,
