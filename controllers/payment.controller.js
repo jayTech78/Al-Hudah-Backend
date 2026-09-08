@@ -115,7 +115,7 @@ const addPayment = async (req, res) => {
         credit: item.price,
         debit: 0,
         balance: newBalance,
-        paymentMethod,
+        paymentMethod: 'Online',
         recordedBy,
       };
 
