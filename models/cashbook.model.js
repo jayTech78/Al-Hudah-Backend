@@ -38,7 +38,7 @@ const cashbookSchema = new mongoose.Schema({
         enum: ['Cash','Bank', 'Transfer', 'Card', 'Online']
     },
     recordedBy: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Staff'
     },
     openingBalance:{
