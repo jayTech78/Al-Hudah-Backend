@@ -108,7 +108,7 @@ const addPayment = async (req, res) => {
       // Save cashbook transaction
       const cashbookObj = {
         date: new Date(),
-        description: description || "item.name",
+        description: "item.name",
         reference: bookingRef,
         account: "payments",
         type: "Income",
