@@ -88,13 +88,6 @@ const addPayment = async (req, res) => {
     // One receipt reference for the whole transaction
     const bookingRef = get_random_string(6);
 
-    const lastRecord = await cashbookModel.findOne().sort({ createdAt: -1 });
-
-    const lastBalance = lastRecord ? Number(lastRecord.balance) : 0;
-
-    // Income increases the balance
-    const newBalance = lastBalance + Price;
-
     // Save every selected item as its own payment document
     for (const item of selectedItems) {
       const paymentObj = {
