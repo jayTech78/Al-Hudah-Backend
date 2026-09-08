@@ -14,7 +14,7 @@ const generateId = async () => {
 
   const parents = await parentModel.find({
     parentId: {
-      $regex: `^${prefix}/${year}/`,
+      $regex: `^${prefix}-${year}-`,
     },
   });
 
@@ -23,7 +23,7 @@ const generateId = async () => {
   parents.forEach((parent) => {
     if (!parent.parentId) return;
 
-    const number = Number(parent.parentId.split("/")[2]);
+    const number = Number(parent.parentId.split("-")[2]);
 
     if (number > highest) {
       highest = number;
@@ -32,7 +32,7 @@ const generateId = async () => {
 
   const nextNumber = highest + 1;
 
-  return `${prefix}/${year}/${String(nextNumber).padStart(4, "0")}`;
+  return `${prefix}-${year}-${String(nextNumber).padStart(4, "0")}`;
 };
 
 const parentSignUp = async (req, res) => {
