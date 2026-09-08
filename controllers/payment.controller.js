@@ -90,11 +90,12 @@ const addPayment = async (req, res) => {
 
     // Save every selected item as its own payment document
     for (const item of selectedItems) {
+      console.log(item)
       const paymentObj = {
         paymentRef: bookingRef,
         amountPaid: Number(item.price),
         email,
-        paidFor: item.name,
+        paidFor: item.name || item.paidFor,
         fullName,
         studentName,
         parentId,
@@ -118,6 +119,8 @@ const addPayment = async (req, res) => {
         paymentMethod: 'Online',
         recordedBy: 'Parent',
       };
+
+      console.log(paymentObj);
 
       const cashbookForm = new cashbookModel(cashbookObj);
       await cashbookForm.save();
