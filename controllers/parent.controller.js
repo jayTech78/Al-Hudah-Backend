@@ -70,7 +70,7 @@ const parentSignUp = async (req, res) => {
     // Generate parent ID
     const parentId = await generateId();
 
-    console.log("This is the parentId:", parentId);
+    // console.log("This is the parentId:", parentId);
 
     // Create parent object
     const parentObj = {
