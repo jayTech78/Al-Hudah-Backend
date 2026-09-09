@@ -68,7 +68,6 @@ const addPayment = async (req, res) => {
       studentId,
       selectedItems,
     } = req.body;
-    let studentId = ''
     // console.log(req.body);
     if (!parentId || !Price || !selectedItems || selectedItems.length === 0) {
       return res.send({
