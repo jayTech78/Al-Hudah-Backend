@@ -55,6 +55,7 @@ const verifyPayment = async (req, response) => {
     });
   }
 };
+
 // Add payment to the database and send a receipt
 const addPayment = async (req, res) => {
   try {
@@ -63,17 +64,30 @@ const addPayment = async (req, res) => {
       email,
       fullName,
       parentId,
-      studentId,
       studentName,
+      studentId,
       selectedItems,
     } = req.body;
-    console.log(req.body);
+    let studentId = ''
+    // console.log(req.body);
     if (!parentId || !Price || !selectedItems || selectedItems.length === 0) {
       return res.send({
         status: false,
         message: "Missing required fields",
       });
     }
+
+    // // gets the student with the parentId and the student name
+    // const foundStudent = await studentModel.findOne({
+    //   parentId, studentName
+    // })
+
+    // if(!foundStudent)
+    // {
+    //   res.send({status:false, message: 'student nt found'})
+    // }
+    
+    // foundStudent.studentId = studentId;
 
     const lastRecord = await cashbookModel.findOne().sort({ createdAt: -1 });
 
@@ -87,6 +101,8 @@ const addPayment = async (req, res) => {
 
     // One receipt reference for the whole transaction
     const bookingRef = get_random_string(6);
+
+    // const studentId = await generateId();
 
     // Save every selected item as its own payment document
     for (const item of selectedItems) {
@@ -109,7 +125,7 @@ const addPayment = async (req, res) => {
       // Save cashbook transaction
       const cashbookObj = {
         date: new Date(),
-        description: "item.name",
+        description: item.name,
         reference: bookingRef,
         account: "payments",
         type: "Income",

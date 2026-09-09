@@ -63,7 +63,8 @@ const addStudent = async (req, res) => {
       });
     }
 
-    const studentId = generateId()
+    const studentId = await generateId();
+    
     const studentObj = {
       parentId,
       studentId,
