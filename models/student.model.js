@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
   parentId: {
-    // type: String,
-    required: true,
+    type: String,
+    // required: true,
   },
 
   studentId: {
