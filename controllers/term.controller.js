@@ -5,19 +5,21 @@ const sessionModel = require("../models/session.model");
 const createTerm = async (req, res) => {
   try {
     // console.log(req.body)
-    const { termName, startDate, endDate, session } = req.body;
+    const { termName, startDate, endDate } = req.body;
 
     const existingTerm = await termModel.findOne({ termName });
+
     if (existingTerm) {
       return res.send({ status: false, message: "Term already exists for this session" });
     }
+
     const session = await sessionModel.findOne({status: 'Active'})
 
     const term = await termModel.create({
       termName,
       startDate,
       endDate,
-      session,
+      session : session.sessionName,
       status: "InActive",
     });
 
