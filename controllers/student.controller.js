@@ -187,7 +187,7 @@ const getStudents = async (req, res) => {
       // console.log(parent)
       return {
         ...student._doc,
-        parentName: parent.surName + ' ' + parent.otherNames,
+        parentName: parent?.surName + ' ' + parent?.otherNames,
         parentPhone: parent?.phoneNo,
       };
     })
