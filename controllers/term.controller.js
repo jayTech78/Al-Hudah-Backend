@@ -11,6 +11,7 @@ const createTerm = async (req, res) => {
     if (existingTerm) {
       return res.send({ status: false, message: "Term already exists for this session" });
     }
+    const session = await sessionModel.findOne({status: 'Active'})
 
     const term = await termModel.create({
       termName,
