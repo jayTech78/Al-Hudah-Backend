@@ -35,7 +35,7 @@ const generateId = async () => {
 
 const addStaff = async (req, res) => {
 
-  const staffId = generateId()
+  const staffId = await generateId()
   let {
     surName,
     otherNames,

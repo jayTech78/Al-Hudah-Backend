@@ -105,7 +105,7 @@ const addPayment = async (req, res) => {
 
     // Save every selected item as its own payment document
     for (const item of selectedItems) {
-      console.log(item)
+      // console.log(item)
       const paymentObj = {
         paymentRef: bookingRef,
         amountPaid: Number(item.price),
