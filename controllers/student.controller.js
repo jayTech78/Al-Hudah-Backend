@@ -93,7 +93,7 @@ const addStudent = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.send({ status: false, message: "There was an error: " + err.message });
+    res.send({ status: false, message: err.message });
   }
 };
 const updateStudent = async (req, res) => {
