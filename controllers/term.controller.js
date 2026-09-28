@@ -4,29 +4,66 @@ const sessionModel = require("../models/session.model");
 // Create Term
 const createTerm = async (req, res) => {
   try {
-    // console.log(req.body)
+    console.log(req.body);
+
     const { termName, startDate, endDate } = req.body;
 
-    const existingTerm = await termModel.findOne({ termName });
-
-    if (existingTerm) {
-      return res.send({ status: false, message: "Term already exists for this session" });
+    // 1. Validate required fields
+    if (!termName || !startDate || !endDate) {
+      return res.send({
+        status: false,
+        message: "Term name, start date and end date are required",
+      });
     }
 
-    const session = await sessionModel.findOne({status: 'Active'})
+    // 2. Get the active session
+    const session = await sessionModel.findOne({
+      status: "Active",
+    });
 
+    if (!session) {
+      return res.send({
+        status: false,
+        message: "No active session found",
+      });
+    }
+
+    // 3. Check if this term already exists for the active session
+    const existingTerm = await termModel.findOne({
+      termName,
+      session: session.sessionName,
+    });
+
+    if (existingTerm) {
+      return res.send({
+        status: false,
+        message: `${termName} already exists for ${session.sessionName}`,
+      });
+    }
+
+    // 4. Create the term
     const term = await termModel.create({
       termName,
       startDate,
       endDate,
-      session : session.sessionName,
+      session: session.sessionName,
       status: "InActive",
     });
 
-    res.send({ status: true, message: "Term created successfully", term });
+    // 5. Return response
+    return res.send({
+      status: true,
+      message: "Term created successfully",
+      term,
+    });
+
   } catch (error) {
     console.error("createTerm error:", error);
-    res.send({ status: false, message: "Server Error" });
+
+    return res.send({
+      status: false,
+      message: "Server Error",
+    });
   }
 };
 
