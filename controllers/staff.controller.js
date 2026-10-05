@@ -166,6 +166,7 @@ const {classTaken, staffId, surName, otherNames}= req.body
   };
 
   const login = (req, res) => {
+    
   const { email, password } = req.body;
 
   staffModel.findOne({ email })

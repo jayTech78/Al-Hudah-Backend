@@ -146,7 +146,7 @@ const updateClass = async (req, res) => {
 
     // Find the old teacher using the old class teacher name
     const oldTeacher = await staffModel.findOne({
-      classTaken: String(classId),
+      classTaken: String(className),
     });
 
     // Remove class from old teacher
