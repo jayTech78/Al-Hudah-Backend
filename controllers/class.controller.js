@@ -159,7 +159,7 @@ const updateClass = async (req, res) => {
     }
 
     // Assign class to new teacher
-    newTeacher.classTaken = String(classId);
+    newTeacher.classTaken = String(className);
     await newTeacher.save();
 
     // Update class
