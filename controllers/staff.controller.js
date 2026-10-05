@@ -36,6 +36,7 @@ const generateId = async () => {
 const addStaff = async (req, res) => {
 
   const staffId = await generateId()
+  
   let {
     surName,
     otherNames,
@@ -50,6 +51,7 @@ const addStaff = async (req, res) => {
     subjectTaken,
     salary,
   } = req.body;
+
   const existingStaff = await staffModel.findOne({ email });
 
   if (existingStaff) {
