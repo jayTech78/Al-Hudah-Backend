@@ -19,21 +19,27 @@ let staffSchema = mongoose.Schema
     dateRegistered:{type:Date, default:Date.now()},
 })
 let saltRound = 5
-staffSchema.pre("save", function(next)
-{
-    bcrypt.hash(this.password, saltRound,(err,hashedPassword)=>
-    {
-        if(err)
-        {
-            console.log(err)
-        }
-        else
-        {
-            this.password = hashedPassword
-            next()
-        }
-    })
-})
+
+staffSchema.pre("save", function (next) {
+
+  // Only hash password when the password has been changed
+  if (!this.isModified("password")) {
+    return next();
+  }
+
+  bcrypt.hash(this.password, saltRound, (err, hashedPassword) => {
+
+    if (err) {
+      return next(err);
+    }
+
+    this.password = hashedPassword;
+
+    next();
+  });
+
+});
+
 staffSchema.methods.validatePassword = function (password, callback)
 {
     bcrypt.compare(password, this.password,(err,same)=>

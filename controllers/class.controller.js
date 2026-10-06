@@ -74,7 +74,7 @@ const addClass = async (req, res) => {
     const newClass = await classModel.create(classObj);
 
     // Update teacher's classTaken
-    teacher.classTaken = String(className);
+    teacher.classTaken = className;
 
     await teacher.save();
 
@@ -146,7 +146,7 @@ const updateClass = async (req, res) => {
 
     // Find the old teacher using the old class teacher name
     const oldTeacher = await staffModel.findOne({
-      classTaken: String(className),
+      classTaken: className,
     });
 
     // Remove class from old teacher
@@ -159,7 +159,7 @@ const updateClass = async (req, res) => {
     }
 
     // Assign class to new teacher
-    newTeacher.classTaken = String(className);
+    newTeacher.classTaken = className;
     await newTeacher.save();
 
     // Update class
